@@ -1,0 +1,57 @@
+groups:
+ - name: Server-Dev
+   rules:
+   - record: job:node_cpu_seconds:avg_idle
+     expr: avg without(cpu)(rate(node_cpu_seconds_total{mode="idle"}[5m]))
+
+   - alert: Node Exporter Down On Server Dev
+     expr: up{instance="10.0.0.55:9100"} == 0
+
+#   - alert: Check Disk Service Down
+#     expr: absent(container_cpu_usage_seconds_total{com_docker_compose_service="flamboyant_dubinsky"}) == 1
+#     for: 1m
+#     labels:
+#      severity: critical
+#     annotations:
+#      summary: "Container {{ $labels.container_name }} is not running"
+#      description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+#   - alert: FrontEnd Service Down
+#     expr: absent(container_cpu_usage_seconds_total{com_docker_compose_service="frontend_quanlybackup_dev"}) == 1
+#     for: 1m
+#     labels:
+#      severity: critical
+#     annotations:
+#      summary: "Container {{ $labels.container_name }} is not running"
+#      description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+#   - alert: Searching Disk Service Down
+#     expr: absent(container_cpu_usage_seconds_total{com_docker_compose_service="searching-service"}) == 1
+#     for: 1m
+#     labels:
+#      severity: critical
+#     annotations:
+#      summary: "Container {{ $labels.container_name }} is not running"
+#      description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+ - name: Cpu more than 80%
+   rules:
+    - alert: High Cpu on Container
+      expr: 100 - (irate(node_cpu_seconds_total{mode="idle"}[1m]) * 100) > 80
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage detected"
+        description: "The CPU usage is high on the server (instance {{ $labels.instance }})."
+
+ - name: Memory Usage > 75%
+   rules:
+    - alert: Memory nearly full -> only 25% left
+      expr: 100 - 100 * (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) >= 75
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage detected"
+        description: "The CPU usage is high on the server (instance {{ $labels.instance }})."

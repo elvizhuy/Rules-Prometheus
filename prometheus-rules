@@ -1,0 +1,81 @@
+groups:
+ - name: Server-Dev-rules
+   rules:
+   - record: job:node_cpu_seconds:avg_idle
+     expr: avg without(cpu)(rate(node_cpu_seconds_total{mode="idle"}[5m]))
+
+   - alert: Node Exporter Down On Server Dev
+     expr: up{instance="10.0.0.55:9100"} == 0
+
+   - alert: Check Disk Service Down
+     expr: absent(container_memory_usage_bytes{container_name="flamboyant_dubinsky", job="node_exporter"} == 1)
+     for: 1m
+     labels:
+       severity: critical
+     annotations:
+       summary: "Container {{ $labels.container_name }} is not running"
+       description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+   - alert: FrontEnd Service Down
+     expr: absent(container_memory_usage_bytes{container_name="frontend_quanlybackup_dev", job="node_exporter"} == 1)
+     for: 1m
+     labels:
+       severity: critical
+     annotations:
+       summary: "Container {{ $labels.container_name }} is not running"
+       description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+   - alert: Searching Disk Service Down
+     expr: absent(container_memory_usage_bytes{container_name="searching-service", job="node_exporter"} == 1)
+     for: 1m
+     labels:
+       severity: critical
+     annotations:
+       summary: "Container {{ $labels.container_name }} is not running"
+       description: "Container {{ $labels.container_name }} has been down for more than 1 minutes."
+
+      
+
+                                                                                   #global:
+#  smtp_smarthost: 'smtp.domain.com:587'
+#  smtp_from: 'your_email@domain.com'
+#  smtp_auth_username: 'username'
+#  smtp_auth_password: 'password'
+
+#route:
+#  group_by: [alertname, datacenter, app]
+#  receiver: 'group-1'
+
+route:
+  receiver: 'mail'
+  repeat_interval: 1h
+  group_by: [ alertname ]
+
+receivers:
+  - name: 'mail'
+    email_configs:
+      - smarthost: 'smtp.gmail.com:465'
+        auth_username: 'elvizhuy@gmail.com'
+        auth_password: 'Jeremy090890'
+        from: 'elvizhuy@gmail.com'
+        to: 'huy.nn.2176@aptechlearning.edu.vn'
+
+
+global:
+  smtp_smarthost: 'smtp.gmail.com:465'
+  smtp_from: 'Alert Manager'
+  smtp_auth_username: 'elvizhuy@gmail.com'
+  smtp_auth_password: 'ubzhttigeouibvls'
+  smtp_require_tls: true
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'email-notifications'
+
+receivers:
+- name: 'email-notifications'
+  email_configs:
+  - to: 'huy.nn.2176@aptechlearning.edu.vn'    

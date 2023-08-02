@@ -1,0 +1,32 @@
+rate(prometheus_http_requests_total{handler=~'/api.*'}[1m])
+irate(prometheus_http_requests_total{handler=~'/api.*'}[1m])
+changes(process_start_time_seconds{job='node_server210'}[1h])
+deriv(process_resident_memory_bytes{job='prometheus_local'}[1h])
+predict_linear(node_memory_MemFree_bytes{job='node_server210'}[1h],2*60*60)/1024/1024 ----> how memory free in next 2 hours
+
+
+Complete PromQL expressions:
+
+1. node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 20
+
+2. rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m])
+
+3. predict_linear(node_filesystem_free_bytes{fstype!~"tmpfs"}[2h], 6 * 3600)
+
+4. 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[10m])) * 100)
+
+
+Expression	Description	For
+rate(container_cpu_usage_seconds_total{name="redis"}[1m])	The cgroup's CPU usage in the last minute	The redis container
+container_memory_usage_bytes{name="redis"}	The cgroup's total memory usage (in bytes)	The redis container
+rate(container_network_transmit_bytes_total[1m])	Bytes transmitted over the network by the container per second in the last minute	All containers
+rate(container_network_receive_bytes_total[1m])	Bytes received over the network by the container per second in the last minute	All containers
+
+time() - timestamp(container_cpu_usage_seconds_total{name="frontend_quanlybackup_dev"}) > 60
+
+avg((sum (rate (container_cpu_usage_seconds_total {container_name!="" ,pod="<Pod name>" } [5m])) by (namespace , pod, container ) / on (container , pod , namespace) ((kube_pod_container_resource_limits_cpu_cores >0)*300))*100)
+100 - 100 * (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) >= 75  -- Memory used >= 75%
+node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 <= 25 -- Memory used >= 75%
+node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 <= 20
+
+100 - (irate(node_cpu_seconds_total{mode="idle"}[1m]) * 100) > 80 -- high cpu,more than 80%

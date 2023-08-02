@@ -1,0 +1,63 @@
+global:
+  resolve_timeout: 1m
+
+receivers:
+- name: System-Team
+  telegram_configs:
+  - api_url: https://api.telegram.org
+    bot_token: 6612849064:AAGR795EyHyn278L0WRLeqiTyBuCWRRhjMg
+    chat_id: -998222571
+    #template: template.tmpl  # Thay 'template-name' bằng tên template bạn đã tạo
+    disable_notifications: false
+    http_config:
+      follow_redirects: true
+    send_resolved: true
+    parse_mode: ""
+
+- name: BV-BachMai-telegram
+  telegram_configs:
+  - api_url: https://api.telegram.org
+    bot_token: 5765051913:AAEXYcQKE0h8FTiC8Ba0DgNutliSMBbXAjw
+    chat_id: -932865047
+    #template: template.tmpl  # Thay 'template-name' bằng tên template bạn đã tạo
+    disable_notifications: false
+    http_config:
+      follow_redirects: true
+    send_resolved: true
+    parse_mode: ""
+
+- name: Mediplus-telegram
+  telegram_configs:
+  - api_url: https://api.telegram.org
+    bot_token: 5765051913:AAEXYcQKE0h8FTiC8Ba0DgNutliSMBbXAjw
+    chat_id: -866646704
+    #template: template.tmpl  # Thay 'template-name' bằng tên template bạn đã tạo
+    disable_notifications: false
+    http_config:
+      follow_redirects: true
+    send_resolved: true
+    parse_mode: ""
+
+route:
+  continue: false
+  group_by: ['job','severity']
+  group_interval: 1m
+  group_wait: 30s
+  repeat_interval: 1m
+  receiver: System-Team
+  routes:
+  - match_re: 
+     app_type: (bachmai|mediplus)
+    receiver: System-Team 
+    routes:
+    # Bạch Mai group
+    - match:
+        app_type: bachmai
+      receiver: BV-BachMai-telegram
+    # Mediplus group
+    - match:
+        app_type: mediplus
+      receiver: Mediplus-telegram
+
+templates:
+- /etc/alertmanager/*.tmpl
