@@ -12,6 +12,8 @@ irate(node_disk_writes_merged_total{job="Mediplus",instance="10.0.0.55:9100"}[1m
 
 sum(rate(node_disk_reads_completed_total{instance="172.16.16.14:9100",job="Saint-Paul"}[1m]))
 
+sum(rate(node_disk_writes_merged_total{instance="172.16.16.14:9100",job="Saint-Paul"}[1m]))
+
 node_disk_reads_completed_total (field 1)
     This is the total number of reads completed successfully.
 node_disk_reads_merged_total (field 2)
